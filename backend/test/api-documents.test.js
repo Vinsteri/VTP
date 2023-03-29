@@ -37,6 +37,7 @@ describe('/api/documents', () => {
   describe('POST /', () => {
     it('should create a new document', async () => {
       const document = {
+        draft_id: draftId,
         title: 'New Document',
         handler: 'John Smith',
         modified: '2022-03-08 12:00:00'
@@ -47,7 +48,7 @@ describe('/api/documents', () => {
       expect(res.body.title).to.equal(document.title);
       expect(res.body.handler).to.equal(document.handler);
       expect(res.body.modified).to.equal(document.modified);
-    });
+    });    
 
     it('should return an error if the request body is invalid', async () => {
       const document = {
@@ -70,9 +71,14 @@ describe('/api/documents', () => {
 
   describe('PUT /:id', () => {
     it('should update an existing document', async () => {
-      const existingDocument = { id: 1, title: 'Existing Document', handler: 'Setä Manula', modified: '2022-01-31 00:00:00' };
+      // Insert a draft into the drafts table
+      const draft = { subject_id: subjectId };
+      const draftInsertResult = await db.query('INSERT INTO drafts SET ?', draft);
+      const draftId = draftInsertResult.insertId;
+    
+      const existingDocument = { id: 1, draft_id: draftId, title: 'Existing Document', handler: 'Setä Manula', modified: '2022-01-31 00:00:00' };
       await db.query('INSERT INTO documents SET ?', existingDocument);
-      const updatedDocument = { title: 'Updated Document', handler: 'Jane Doe', modified: '2022-03-08 12:00:00' };
+      const updatedDocument = { draft_id: draftId, title: 'Updated Document', handler: 'Jane Doe', modified: '2022-03-08 12:00:00' };
       const res = await chai.request(app).put(`/api/documents/${existingDocument.id}`).send(updatedDocument);
       expect(res).to.have.status(204);
       const result = await db.query('SELECT * FROM documents WHERE id = ?', [existingDocument.id]);
@@ -80,7 +86,7 @@ describe('/api/documents', () => {
       expect(result[0].title).to.equal(updatedDocument.title);
       expect(result[0].handler).to.equal(updatedDocument.handler);
       expect(result[0].modified.toISOString()).to.equal(new Date(updatedDocument.modified).toISOString());
-    });
+    });        
 
     it('should return an error if the document id is invalid', async () => {
       const updatedDocument = { title: 'Updated Document', handler: 'Jane Doe', modified: '2022-03-08 12:00:00' };
@@ -92,13 +98,19 @@ describe('/api/documents', () => {
 
   describe('DELETE /:id', () => {
     it('should delete an existing document', async () => {
-      const existingDocument = { id: 69, title: 'Existing Document', handler: 'Setä Manula', modified: '2022-01-31 00:00:00' }; // ChatGPT made the error of trying to push a document with a duplicate id
+      // Insert a draft into the drafts table
+      const draft = { subject_id: subjectId };
+      const draftInsertResult = await db.query('INSERT INTO drafts SET ?', draft);
+      const draftId = draftInsertResult.insertId;
+    
+      const existingDocument = { id: 2, draft_id: draftId, title: 'Existing Document', handler: 'John Doe', modified: '2022-02-01 00:00:00' };
       await db.query('INSERT INTO documents SET ?', existingDocument);
       const res = await chai.request(app).delete(`/api/documents/${existingDocument.id}`);
       expect(res).to.have.status(204);
       const result = await db.query('SELECT * FROM documents WHERE id = ?', [existingDocument.id]);
       expect(result).to.be.an('array').with.lengthOf(0);
     });
+        
     it('should return an error if the document id is invalid', async () => {
         const res = await chai.request(app).delete('/api/documents/999');
         expect(res).to.have.status(404); // Modified the expected status code manually
