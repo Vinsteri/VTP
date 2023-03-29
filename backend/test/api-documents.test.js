@@ -1,23 +1,34 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
-const db = require('../db'); // Added a .
-const app = require('../index'); // changed this line
+const db = require('../db');
+const app = require('../index');
 
 chai.use(chaiHttp);
 const { expect } = chai;
 
 describe('/api/documents', () => {
+  let draftId;
+  let subjectId;
+
   before(async () => {
     // Clear the documents table before running tests
     await db.query('DELETE FROM documents');
 
+    // Insert a test inspection_subject
+    const subjectResult = await db.query("INSERT INTO inspection_subject (name) VALUES ('Test Subject')");
+    subjectId = subjectResult.insertId;
+
+    // Insert a test draft with the created subject_id
+    const draftResult = await db.query("INSERT INTO drafts (subject_id) VALUES (?)", [subjectId]);
+    draftId = draftResult.insertId;
+
     // Insert test data
     const testDocuments = [
-      { title: 'Test Document 1', handler: 'John Doe', modified: '2022-01-01 12:00:00' },
-      { title: 'Test Document 2', handler: 'Jane Doe', modified: '2022-02-01 12:00:00' },
-      { title: 'Test Document 3', handler: 'John Smith', modified: '2022-03-01 12:00:00' },
+      { draft_id: draftId, title: 'Test Document 1', handler: 'John Doe', modified: '2022-01-01 12:00:00' },
+      { draft_id: draftId, title: 'Test Document 2', handler: 'Jane Doe', modified: '2022-02-01 12:00:00' },
+      { draft_id: draftId, title: 'Test Document 3', handler: 'John Smith', modified: '2022-03-01 12:00:00' },
     ];
-  
+
     for (const doc of testDocuments) {
       await db.query('INSERT INTO documents SET ?', doc);
     }
