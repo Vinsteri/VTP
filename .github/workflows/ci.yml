@@ -1,12 +1,10 @@
 name: CI
 
 on:
-  pull_request:
-    branches:
-      - master
   pull_request_target:
     branches:
       - master
+      - schema_upgrade
 
 jobs:
   build_and_test:
@@ -34,7 +32,7 @@ jobs:
       run: docker-compose up -d
 
     - name: Run unit tests
-      run: docker exec vtp-backend-1 npm test
+      run: docker exec vtp_backend_1 npm test
 
     - name: Cleanup
       if: always()
