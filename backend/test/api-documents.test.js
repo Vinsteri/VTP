@@ -13,14 +13,23 @@ describe('/api/documents', () => {
   before(async () => {
     // Clear the documents table before running tests
     await db.query('DELETE FROM documents');
-
+  
     // Insert a test inspection_subject
     const subjectResult = await db.query("INSERT INTO inspection_subject (name) VALUES ('Test Subject')");
-    subjectId = subjectResult.insertId;
-
+    subjectId = subjectResult[0].insertId;
+  
+    // Check if subjectId is null
+    if (!subjectId) {
+      throw new Error('subjectId cannot be null');
+    }
+  
     // Insert a test draft with the created subject_id
     const draftResult = await db.query("INSERT INTO drafts (subject_id) VALUES (?)", [subjectId]);
-    draftId = draftResult.insertId;
+    draftId = draftResult[0].insertId;
+
+    if (!draftId) {
+      throw new Error('draftId cannot be null');
+    }
 
     // Insert test data
     const testDocuments = [
@@ -72,21 +81,23 @@ describe('/api/documents', () => {
   describe('PUT /:id', () => {
     it('should update an existing document', async () => {
       // Insert a draft into the drafts table
-      const draft = { subject_id: subjectId };
-      const draftInsertResult = await db.query('INSERT INTO drafts SET ?', draft);
-      const draftId = draftInsertResult.insertId;
-    
-      const existingDocument = { id: 1, draft_id: draftId, title: 'Existing Document', handler: 'Setä Manula', modified: '2022-01-31 00:00:00' };
-      await db.query('INSERT INTO documents SET ?', existingDocument);
+      const [draftResult] = await db.query('INSERT INTO drafts (subject_id) VALUES (?)', [subjectId]);
+      const draftId = draftResult.insertId;
+  
+      const existingDocument = { draft_id: draftId, title: 'Existing Document', handler: 'Setä Manula', modified: '2022-01-31 00:00:00' };
+      const [existingDocumentResult] = await db.query('INSERT INTO documents SET ?', existingDocument);
+      const documentId = existingDocumentResult.insertId;
+  
       const updatedDocument = { draft_id: draftId, title: 'Updated Document', handler: 'Jane Doe', modified: '2022-03-08 12:00:00' };
-      const res = await chai.request(app).put(`/api/documents/${existingDocument.id}`).send(updatedDocument);
+      const res = await chai.request(app).put(`/api/documents/${documentId}`).send(updatedDocument);
       expect(res).to.have.status(204);
-      const result = await db.query('SELECT * FROM documents WHERE id = ?', [existingDocument.id]);
+      
+      const [result] = await db.query('SELECT * FROM documents WHERE id = ?', [documentId]);
       expect(result).to.be.an('array').with.lengthOf(1);
       expect(result[0].title).to.equal(updatedDocument.title);
       expect(result[0].handler).to.equal(updatedDocument.handler);
       expect(result[0].modified.toISOString()).to.equal(new Date(updatedDocument.modified).toISOString());
-    });        
+    });       
 
     it('should return an error if the document id is invalid', async () => {
       const updatedDocument = { title: 'Updated Document', handler: 'Jane Doe', modified: '2022-03-08 12:00:00' };
@@ -100,15 +111,16 @@ describe('/api/documents', () => {
     it('should delete an existing document', async () => {
       // Insert a draft into the drafts table
       const draft = { subject_id: subjectId };
+      
       const draftInsertResult = await db.query('INSERT INTO drafts SET ?', draft);
-      const draftId = draftInsertResult.insertId;
+      const draftId = draftInsertResult[0].insertId;
     
       const existingDocument = { id: 2, draft_id: draftId, title: 'Existing Document', handler: 'John Doe', modified: '2022-02-01 00:00:00' };
       await db.query('INSERT INTO documents SET ?', existingDocument);
       const res = await chai.request(app).delete(`/api/documents/${existingDocument.id}`);
       expect(res).to.have.status(204);
-      const result = await db.query('SELECT * FROM documents WHERE id = ?', [existingDocument.id]);
-      expect(result).to.be.an('array').with.lengthOf(0);
+      const [rows] = await db.query('SELECT * FROM documents WHERE id = ?', [existingDocument.id]);
+      expect(rows).to.be.an('array').with.lengthOf(0);
     });
         
     it('should return an error if the document id is invalid', async () => {
