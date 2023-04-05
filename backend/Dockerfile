@@ -19,4 +19,4 @@ ENV DB_NAME=mydatabase
 EXPOSE ${PORT}
 
 # Start server
-CMD [ "./wait-for-it.sh", "db:3306", "-t", "0", "--", "npm", "start" ]
+CMD [ "./wait-for-it.sh", "db:3306", "-t", "60", "--", "npm", "start" ]
