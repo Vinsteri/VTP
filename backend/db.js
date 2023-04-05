@@ -8,11 +8,12 @@ const connection = mysql.createConnection({
   multipleStatements: true
 });
 
-connection.connect((error) => {
-  if (error) {
-    console.error('Error connecting to database:', error);
+connection.connect(function (err) {
+  if (err) {
+    console.error('Error connecting to database:', err);
+    setTimeout(connectToDatabase, 5000); // Retry after 5 seconds
   } else {
-    console.log('Connected to database');
+    console.log('Connected to the database.');
   }
 });
 
