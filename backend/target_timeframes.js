@@ -4,6 +4,7 @@ const db = require('./db');
 
 function setupTargetTimeframesRoute(app) {
     app.post('/api/target_timeframes', async (req, res) => {
+        console.log('Received POST request');
         const { draft_id, goal, planned_date, actual_date, comments, document_id, link_text } = req.body;
         try {
             const result = await db.query('INSERT INTO target_timeframes (draft_id, goal, planned_date, actual_date, comments, document_id, link_text) VALUES (?, ?, ?, ?, ?, ?, ?)', [draft_id, goal, planned_date, actual_date, comments, document_id, link_text]);

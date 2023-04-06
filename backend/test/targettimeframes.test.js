@@ -12,6 +12,7 @@ const expect = chai.expect;
 describe('Target Timeframes API', () => {
     // Before each test, create a new target timeframe record in the database
     beforeEach(async () => {
+        console.log('Executing beforeEach hook');
         // Insert a new record into the drafts table
         await db.query('INSERT INTO drafts (subject_id) VALUES (1)');
       
@@ -33,11 +34,12 @@ describe('Target Timeframes API', () => {
         await db.query('DELETE FROM target_timeframes');
     });
 
-    describe('POST /api/targettimeframes', () => {
+    describe('POST /api/target_timeframes', () => {
         it('should create a new target timeframe record', async () => {
+            console.log('Sending POST request');
             const res = await request(app)
-                .post('/api/targettimeframes')
-                .send({ draft_id: 2, planned_date: '2022-02-01', actual_date: '2022-02-02', comments: 'Test comments', document_id: 2 });
+                .post('/api/target_timeframes')
+                .send({ draft_id: 2, goal: 'Test goal', planned_date: '2022-02-01', actual_date: '2022-02-02', comments: 'Test comments', document_id: 2 });
             assert.equal(res.status, 201);
             assert.isNumber(res.body.id);
             assert.equal(res.body.draft_id, 2);
@@ -49,16 +51,16 @@ describe('Target Timeframes API', () => {
 
         it('should return an error when missing required fields', async () => {
             const res = await request(app)
-                .post('/api/targettimeframes')
+                .post('/api/target_timeframes')
                 .send({ planned_date: '2022-02-01', actual_date: '2022-02-02', comments: 'Test comments', document_id: 2 });
             assert.equal(res.status, 500);
             assert.equal(res.body.error, 'Error creating target timeframe');
         });
     });
 
-    describe('GET /api/targettimeframes', () => {
+    describe('GET /api/target_timeframes', () => {
         it('should retrieve all target timeframe records', async () => {
-            const response = await chai.request(app).get('/api/targettimeframes');
+            const response = await chai.request(app).get('/api/target_timeframes');
             expect(response.status).to.equal(200);
             expect(response.body).to.be.an('array');
             expect(response.body.length).to.equal(1);
@@ -71,9 +73,9 @@ describe('Target Timeframes API', () => {
         });
     });
 
-    describe('DELETE /api/targettimeframes/:id', () => {
+    describe('DELETE /api/target_timeframes/:id', () => {
         it('should return a 404 error if the target timeframe does not exist', async () => {
-            const response = await chai.request(app).delete('/api/targettimeframes/9999');
+            const response = await chai.request(app).delete('/api/target_timeframes/9999');
             expect(response).to.have.status(404);
             expect(response.body).to.deep.equal({ error: 'Target timeframe with id 9999 not found' });
         });
@@ -81,35 +83,35 @@ describe('Target Timeframes API', () => {
         it('should delete a target timeframe and return a 204 status code', async () => {
             // Insert a target timeframe to delete
             const insertResponse = await chai.request(app)
-                .post('/api/targettimeframes')
+                .post('/api/target_timeframes')
                 .send({ draft_id: 1, planned_date: '2022-03-01', actual_date: '2022-03-03', comments: 'Test comment', document_id: 1 });
             const targetTimeframeId = insertResponse.body.id;
 
             // Delete the target timeframe
-            const deleteResponse = await chai.request(app).delete(`/api/targettimeframes/${targetTimeframeId}`);
+            const deleteResponse = await chai.request(app).delete(`/api/target_timeframes/${targetTimeframeId}`);
             expect(deleteResponse).to.have.status(204);
 
             // Check that the target timeframe was deleted
-            const getResponse = await chai.request(app).get(`/api/targettimeframes/${targetTimeframeId}`);
+            const getResponse = await chai.request(app).get(`/api/target_timeframes/${targetTimeframeId}`);
             expect(getResponse).to.have.status(404);
             expect(getResponse.body).to.deep.equal({ error: `Target timeframe with id ${targetTimeframeId} not found` });
         });
     });
 
-    describe('GET /api/targettimeframes/:id', () => {
+    describe('GET /api/target_timeframes/:id', () => {
         it('should return a 404 error if the target timeframe does not exist', async () => {
-            const response = await chai.request(app).get('/api/targettimeframes/9999');
+            const response = await chai.request(app).get('/api/target_timeframes/9999');
             expect(response).to.have.status(404);
             expect(response.body).to.deep.equal({ error: 'Target timeframe with id 9999 not found' });
         });
 
         it('should return the requested target timeframe', async () => {
             const insertResponse = await chai.request(app)
-                .post('/api/targettimeframes')
+                .post('/api/target_timeframes')
                 .send({ draft_id: 1, planned_date: '2022-03-01', actual_date: '2022-03-03', comments: 'Test comment', document_id: 1 });
             const targetTimeframeId = insertResponse.body.id;
 
-            const response = await chai.request(app).get(`/api/targettimeframes/${targetTimeframeId}`);
+            const response = await chai.request(app).get(`/api/target_timeframes/${targetTimeframeId}`);
             expect(response).to.have.status(200);
             expect(response.body).to.deep.include({
                 id: targetTimeframeId,
@@ -123,15 +125,15 @@ describe('Target Timeframes API', () => {
             expect(new Date(response.body.actual_date).toISOString().substr(0, 10)).to.equal('2022-03-03');
         });
     });
-});
 
-describe('PUT /api/targettimeframes/:id', () => {
+
+describe('PUT /api/target_timeframes/:id', () => {
     // Create a target timeframe to update
     let targetTimeframeId;
     before(async () => {
         const result = await db.query(
-            'INSERT INTO target_timeframes (draft_id, planned_date, actual_date, comments, document_id) VALUES (?, ?, ?, ?, ?)',
-            [1, '2022-01-01', null, 'Test comment', null]
+            'INSERT INTO target_timeframes (draft_id, goal, planned_date, actual_date, comments, document_id) VALUES (?, ?, ?, ?, ?, ?)',
+            [1, 'Test goal', '2022-01-01', null, 'Test comment', null]
         );
         targetTimeframeId = result.insertId;
     });
@@ -140,7 +142,7 @@ describe('PUT /api/targettimeframes/:id', () => {
     it('should update an existing target timeframe', async () => {
         const res = await chai
             .request(app)
-            .put(`/api/targettimeframes/${targetTimeframeId}`)
+            .put(`/api/target_timeframes/${targetTimeframeId}`)
             .send({
                 draft_id: 1,
                 planned_date: '2022-01-02',
@@ -169,7 +171,7 @@ describe('PUT /api/targettimeframes/:id', () => {
     it('should return a 404 error if the target timeframe does not exist', async () => {
         const res = await chai
             .request(app)
-            .put('/api/targettimeframes/999')
+            .put('/api/target_timeframes/999')
             .send({
                 draft_id: 1,
                 planned_date: '2022-01-02',
@@ -191,8 +193,8 @@ describe('Target Timeframes API - Get by draft_id', () => {
     before(async () => {
         // create a target timeframe to use for testing
         const results = await db.query(
-            'INSERT INTO target_timeframes (draft_id, planned_date, actual_date, comments, document_id) VALUES (?, ?, ?, ?, ?)',
-            [1, '2023-04-01', '2023-04-05', 'Test comment', 1]
+            'INSERT INTO target_timeframes (draft_id, goal, planned_date, actual_date, comments, document_id) VALUES (?, ?, ?, ?, ?, ?)',
+            [1, 'Test goal', '2023-04-01', '2023-04-05', 'Test comment', 1]
         );
     });
 
@@ -203,7 +205,7 @@ describe('Target Timeframes API - Get by draft_id', () => {
 
     it('should return all target timeframes with the given draft_id', (done) => {
         chai.request(app)
-            .get('/api/targettimeframes/target/1')
+            .get('/api/target_timeframes/target/1')
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('array');
@@ -214,7 +216,7 @@ describe('Target Timeframes API - Get by draft_id', () => {
 
     it('should return an empty array if no target timeframes are found with the given draft_id', (done) => {
         chai.request(app)
-            .get('/api/targettimeframes/target/2')
+            .get('/api/target_timeframes/target/2')
             .end((err, res) => {
                 res.should.have.status(200);
                 res.body.should.be.a('array');
@@ -229,11 +231,12 @@ describe('Target Timeframes API - Get by draft_id', () => {
     //         throw new Error('Test error');
     //     };
     //     chai.request(app)
-    //         .get('/api/targettimeframes/target/1')
+    //         .get('/api/target_timeframes/target/1')
     //         .end((err, res) => {
     //             res.should.have.status(500);
     //             res.body.should.have.property('error');
     //             done();
     //         });
     // });
+    });
 });
