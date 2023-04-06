@@ -2,18 +2,18 @@
 
 const db = require('./db');
 
+
 function setupTargetTimeframesRoute(app) {
     app.post('/api/target_timeframes', async (req, res) => {
-        console.log('Received POST request');
         const { draft_id, goal, planned_date, actual_date, comments, document_id, link_text } = req.body;
         try {
-            const result = await db.query('INSERT INTO target_timeframes (draft_id, goal, planned_date, actual_date, comments, document_id, link_text) VALUES (?, ?, ?, ?, ?, ?, ?)', [draft_id, goal, planned_date, actual_date, comments, document_id, link_text]);
+            const [result] = await db.query('INSERT INTO target_timeframes (draft_id, goal, planned_date, actual_date, comments, document_id, link_text) VALUES (?, ?, ?, ?, ?, ?, ?)', [draft_id, goal, planned_date, actual_date, comments, document_id, link_text]); // Destructure the result array here
             res.status(201).json({ id: result.insertId });
         } catch (err) {
             res.status(500).json({ error: 'Error creating target timeframes' });
         }
     });
-
+    
 
     app.get('/api/target_timeframes/:id', async (req, res) => {
         const { id } = req.params;
@@ -44,8 +44,7 @@ function setupTargetTimeframesRoute(app) {
             res.status(500).json({ error: 'Error updating target timeframes' });
         }
     });
-
-
+    
 
     app.delete('/api/target_timeframes/:id', async (req, res) => {
         const { id } = req.params;
@@ -60,7 +59,6 @@ function setupTargetTimeframesRoute(app) {
             res.status(500).json({ error: 'Error deleting target timeframes' });
         }
     });
-
 }
 
 module.exports = setupTargetTimeframesRoute;
