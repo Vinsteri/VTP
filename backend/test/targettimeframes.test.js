@@ -27,6 +27,7 @@ describe('Target Timeframes API', () => {
                 .send({ draft_id: 1, goal: 'Test goal', planned_date: '2022-01-01', actual_date: '2022-01-02', comments: 'Test comments', document_id: 1, link_text: 'Test link' });
         
             if (res.status !== 201 || typeof res.body.id !== 'number') {
+                console.error('Unexpected response body:', res.body);
             }
         
             assert.equal(res.status, 201);
@@ -70,7 +71,7 @@ describe('Target Timeframes API', () => {
     });
 
     describe('PUT /api/target_timeframes/:id', () => {
-/*         it('should update an existing target timeframe', async () => {
+        it('should update an existing target timeframe', async () => {
             const postResponse = await request(app)
                 .post('/api/target_timeframes')
                 .send({ draft_id: 1, goal: 'Test goal', planned_date: '2022-01-01', actual_date: '2022-01-02', comments: 'Test comments', document_id: 1, link_text: 'Test link' });
@@ -94,7 +95,7 @@ describe('Target Timeframes API', () => {
                 document_id: 2,
                 link_text: 'Updated link'
             });
-        }); */
+        });
 
         it('should return a 404 error if the target timeframe does not exist', async () => {
             const res = await request(app)
@@ -107,7 +108,7 @@ describe('Target Timeframes API', () => {
     });
 
     describe('DELETE /api/target_timeframes/:id', () => {
-/*         it('should delete an existing target timeframe', async () => {
+        it('should delete an existing target timeframe', async () => {
             const postResponse = await request(app)
                 .post('/api/target_timeframes')
                 .send({ draft_id: 1, goal: 'Test goal', planned_date: '2022-01-01', actual_date: '2022-01-02', comments: 'Test comments', document_id: 1, link_text: 'Test link' });
@@ -117,7 +118,7 @@ describe('Target Timeframes API', () => {
 
             assert.equal(res.status, 200);
             assert.equal(res.body.message, 'Target timeframes deleted successfully');
-        }); */
+        });
 
         it('should return a 404 error if the target timeframe does not exist', async () => {
             const res = await request(app).delete('/api/target_timeframes/9999');
