@@ -6,10 +6,20 @@ function setupDraftsRoute(app) {
   app.post('/api/drafts', async (req, res) => {
     const { subject_id } = req.body;
     try {
-      const result = await db.query('INSERT INTO drafts (subject_id) VALUES (?)', [subject_id]);
-      res.status(201).json({ id: result.insertId });
+        const result = await db.query('INSERT INTO drafts (subject_id) VALUES (?)', [subject_id]);
+        res.status(201).json({ id: result[0].insertId });
     } catch (err) {
-      res.status(500).json({ error: 'Error creating draft' });
+        res.status(500).json({ error: 'Error creating draft' });
+    }
+  });
+
+
+  app.get('/api/drafts', async (req, res) => {
+    try {
+        const result = await db.query('SELECT * FROM drafts');
+        res.status(200).json(result);
+    } catch (err) {
+        res.status(500).json({ error: 'Error fetching drafts' });
     }
   });
 
@@ -25,22 +35,6 @@ function setupDraftsRoute(app) {
       }
     } catch (err) {
       res.status(500).json({ error: 'Error retrieving draft' });
-    }
-  });
-
-
-  app.put('/api/drafts/:id', async (req, res) => {
-    const { id } = req.params;
-    const { subject_id } = req.body;
-    try {
-      const result = await db.query('UPDATE drafts SET subject_id = ? WHERE id = ?', [subject_id, id]);
-      if (result.affectedRows === 0) {
-        res.status(404).json({ error: 'Draft not found' });
-      } else {
-        res.status(200).json({ message: 'Draft updated successfully' });
-      }
-    } catch (err) {
-      res.status(500).json({ error: 'Error updating draft' });
     }
   });
 

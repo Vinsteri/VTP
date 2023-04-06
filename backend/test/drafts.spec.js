@@ -5,11 +5,29 @@ const chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
 describe('/drafts', () => {
+    let createdDraftId;
+
+    beforeEach((done) => {
+        const draft = {
+            subject_id: 1
+        };
+        chai.request(server)
+            .post('/api/drafts')
+            .send(draft)
+            .end((err, res) => {
+                chai.expect(res).to.have.status(201);
+                chai.expect(res.body).to.be.an('object');
+                chai.expect(res.body).to.have.property('id');
+                createdDraftId = res.body.id;
+                done();
+            });
+    });
+
     // Test GET /drafts endpoint
-    describe('GET /', () => {
+    describe('GET /api/drafts', () => {
         it('should return all drafts', (done) => {
             chai.request(server)
-                .get('/drafts')
+                .get('/api/drafts')
                 .end((err, res) => {
                     chai.expect(res).to.have.status(200);
                     chai.expect(res.body).to.be.an('array');
@@ -19,69 +37,38 @@ describe('/drafts', () => {
     });
 
     // Test POST /drafts endpoint
-    describe('POST /', () => {
+    describe('POST /api/drafts', () => {
         it('should create a new draft', (done) => {
             const draft = {
-                title: 'My new draft',
-                body: 'This is the body of my new draft'
+                subject_id: 1
             };
             chai.request(server)
-                .post('/drafts')
+                .post('/api/drafts')
                 .send(draft)
                 .end((err, res) => {
-                    chai.expect(res).to.have.status(200);
+                    chai.expect(res).to.have.status(201); // Updated to 201, as that's the status code in the API for successful creation
                     chai.expect(res.body).to.be.an('object');
                     chai.expect(res.body).to.have.property('id');
-                    chai.expect(res.body.title).to.equal(draft.title);
-                    chai.expect(res.body.body).to.equal(draft.body);
                     done();
                 });
         });
     });
 
-    // Test PUT /drafts/:id endpoint
-    describe('PUT /:id', () => {
-        it('should update an existing draft', (done) => {
-            const draft = {
-                title: 'My updated draft',
-                body: 'This is the updated body of my draft'
-            };
-            chai.request(server)
-                .get('/drafts')
-                .end((err, res) => {
-                    chai.expect(res).to.have.status(200);
-                    chai.expect(res.body).to.be.an('array');
-                    const id = res.body[0].id; // assuming at least one draft exists
-                    chai.request(server)
-                        .put(`/drafts/${id}`)
-                        .send(draft)
-                        .end((err, res) => {
-                            chai.expect(res).to.have.status(200);
-                            chai.expect(res.body).to.be.an('object');
-                            chai.expect(res.body.id).to.equal(id);
-                            chai.expect(res.body.title).to.equal(draft.title);
-                            chai.expect(res.body.body).to.equal(draft.body);
-                            done();
-                        });
-                });
-        });
-    });
-
     // Test DELETE /drafts/:id endpoint
-    describe('DELETE /:id', () => {
+    describe('DELETE /api/drafts/:id', () => {
         it('should delete an existing draft', (done) => {
             chai.request(server)
-                .get('/drafts')
+                .get(`/api/drafts/${createdDraftId}/full`)
                 .end((err, res) => {
                     chai.expect(res).to.have.status(200);
                     chai.expect(res.body).to.be.an('array');
                     const id = res.body[0].id; // assuming at least one draft exists
                     chai.request(server)
-                        .delete(`/drafts/${id}`)
+                        .delete(`/api/drafts/${id}`)
                         .end((err, res) => {
                             chai.expect(res).to.have.status(200);
                             chai.request(server)
-                                .get(`/drafts/${id}`)
+                                .get(`/api/drafts/${id}`)
                                 .end((err, res) => {
                                     chai.expect(res).to.have.status(404);
                                     done();
@@ -90,6 +77,7 @@ describe('/drafts', () => {
                 });
         });
     });
+    
 
     // Add after() hook to close the server
     after((done) => {
