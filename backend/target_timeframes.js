@@ -34,7 +34,7 @@ function setupTargetTimeframesRoute(app) {
         const { id } = req.params;
         const { draft_id, goal, planned_date, actual_date, comments, document_id, link_text } = req.body;
         try {
-            const result = await db.query('UPDATE target_timeframes SET draft_id = ?, goal = ?, planned_date = ?, actual_date = ?, comments = ?, document_id = ?, link_text = ? WHERE id = ?', [draft_id, goal, planned_date, actual_date, comments, document_id, link_text, id]);
+            const [result] = await db.query('UPDATE target_timeframes SET draft_id = ?, goal = ?, planned_date = ?, actual_date = ?, comments = ?, document_id = ?, link_text = ? WHERE id = ?', [draft_id, goal, planned_date, actual_date, comments, document_id, link_text, id]);
             if (result.affectedRows === 0) {
                 res.status(404).json({ error: 'Target timeframes not found' });
             } else {
@@ -49,7 +49,7 @@ function setupTargetTimeframesRoute(app) {
     app.delete('/api/target_timeframes/:id', async (req, res) => {
         const { id } = req.params;
         try {
-            const result = await db.query('DELETE FROM target_timeframes WHERE id = ?', [id]);
+            const [result] = await db.query('DELETE FROM target_timeframes WHERE id = ?', [id]);
             if (result.affectedRows === 0) {
                 res.status(404).json({ error: 'Target timeframes not found' });
             } else {
