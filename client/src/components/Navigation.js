@@ -134,7 +134,7 @@ const Navigation = () => {
       <NavbarNav className={`navbar-nav ${isOpen ? 'open' : ''}`}>
         <NavList>
           <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.home")}</a>
+            <Link to="/" className="nav-link">{t("nav.home")}</Link>
           </NavItem>
           <NavItem className="nav-item">
             <a href="#" className="nav-link">{t("nav.current_inspection")}</a>

@@ -53,6 +53,7 @@ const Homepage = () => {
   const [selectedInspection, setSelectedInspection] = useState(null);
   const [inspectionPlans, setInspectionPlans] = useState([]);
   const [inspections, setInspections] = useState([]);
+  const [fetchError, setFetchError] = useState(false);
 
   useEffect(() => {
     const fetchInspections = async () => {
@@ -72,11 +73,18 @@ const Homepage = () => {
     setSelectedInspection(inspection);
   
     try {
-      const response = await fetch(`http://localhost:8080/api/inspection_information/${inspection.id}`);
+      const response = await fetch(`http://localhost:8080/api/inspection_subjects/${inspection.id}/drafts`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error ${response.status}`);
+      }
+
       const data = await response.json();
       setInspectionPlans(Array.isArray(data) ? data : [data]);
+      setFetchError(false);
     } catch (error) {
       console.error('Error fetching inspection plans:', error);
+      setFetchError(true);
     }
   };
 
@@ -101,12 +109,12 @@ const Homepage = () => {
           <Card>
             <Heading>Inspection Plans for {selectedInspection.name}:</Heading>
             <List>
-              {inspectionPlans && inspectionPlans.length > 0 ? (
+              {inspectionPlans && inspectionPlans.length > 0 && !fetchError ? (
                 inspectionPlans.map((plan) => (
                   <InspectionItem key={plan.id}>
                     <PlanLink to={`/tarkastukset/${plan.id}`}>
                       <FontAwesomeIcon icon={faGavel} className="icon-color" style={{ marginRight: '0.5em' }} />
-                      DataContainer for {plan.subject_of_inspection}
+                      DataContainer for {plan.issue}
                     </PlanLink>
                   </InspectionItem>
                 ))
