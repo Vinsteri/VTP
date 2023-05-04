@@ -25,7 +25,7 @@
     "inspectionPlanLink": "Linkki tarkastussuunnitelmaan",
     "nav": {
         "home": "Kotisivu",
-        "current_inspection": "Nykyisen tarkastuksen nimi",
+        "current_inspection": "Nykyinen tarkastus",
         "templates": "Mallipohjat",
         "finished_documents": "Valmiit dokumentit",
         "regulation": "Sääntely",
@@ -74,7 +74,7 @@
         "finnish": "Suomi"
     },
     "tasks": {
-        "commonMethodsAndTasks": "Yleisimmät takrastumenetelmät ja tehtävät",
+        "commonMethodsAndTasks": "Yleisimmät tarkastusmenetelmät ja tehtävät",
         "addNewTask": "Lisää tehtävä",
         "keyInspectionSteps": "Keskeisimmät tarkastuksen vaiheet",
         "addDialogTitle": "Lisää uusi tehtävä",

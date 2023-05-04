@@ -82,33 +82,6 @@ const NavItem = styled.li`
   margin-bottom: 10px;
 `;
 
-const NavLink = styled(Link)`
-  color: var(--dark-grey-text);
-  text-decoration: none;
-  display: block;
-  padding: 10px;
-  border-radius: 5px;
-  transition: all 0.3s ease-in-out;
-  white-space: normal;
-  overflow-wrap: break-word;
-
-  &:hover {
-    background-color: var(--accent-grey);
-  }
-`;
-
-const LanguageSelector = styled.select`
-  border: none;
-  background-color: transparent;
-  color: var(--dark-grey-text);
-  cursor: pointer;
-  outline: none;
-
-  &:hover,
-  &:focus {
-    color: var(--primary-blue);
-  }
-`;
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -132,65 +105,61 @@ const Navigation = () => {
         <span></span>
       </MenuIcon>
       <NavbarNav className={`navbar-nav ${isOpen ? 'open' : ''}`}>
-        <NavList>
-          <NavItem className="nav-item">
-            <Link to="/" className="nav-link">{t("nav.home")}</Link>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.current_inspection")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.templates")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.finished_documents")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.regulation")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.other_instructions")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <Link to="/tasks" className="nav-link">
-              {t("nav.tasks")}
-            </Link>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.material_provided")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.interviews")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link" onClick={() => setIsFormOpen(true)}>
-              {t("nav.enter_observation")}
-            </a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.observations_actions")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.final_actions")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.contact")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <a href="#" className="nav-link">{t("nav.qa")}</a>
-          </NavItem>
-          <NavItem className="nav-item">
-            <select
-              value={i18n.language}
-              onChange={changeLanguage}
-              className="language-selector"
-            >
-              <option value="en">{t("language.english")}</option>
-              <option value="fi">{t("language.finnish")}</option>
-              {/* Add more languages here */}
-            </select>
-          </NavItem>
-        </NavList>
+      <NavList>
+        <NavItem className="nav-item">
+          <Link to="/" className="nav-link">{t("nav.home")}</Link>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.current_inspection")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.templates")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.finished_documents")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.regulation")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.other_instructions")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <Link to="/tasks" className="nav-link">{t("nav.tasks")}</Link>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.material_provided")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.interviews")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" onClick={() => setIsFormOpen(true)}>{t("nav.enter_observation")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.observations_actions")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.final_actions")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.contact")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <a href="#" className="nav-link" style={{color: 'grey'}} aria-disabled="true">{t("nav.qa")}</a>
+        </NavItem>
+        <NavItem className="nav-item">
+          <select
+            value={i18n.language}
+            onChange={changeLanguage}
+            className="language-selector"
+          >
+            <option value="en">{t("language.english")}</option>
+            <option value="fi">{t("language.finnish")}</option>
+            {/* Add more languages here */}
+          </select>
+        </NavItem>
+      </NavList>
         <AddObservationForm
           open={isFormOpen}
           handleClose={() => setIsFormOpen(false)}

@@ -13,7 +13,6 @@ const InspectionInformationWrapper = styled.div`
 const InspectionInformation = ({ inspectionData }) => {
   const data = inspectionData || {};
   const { t } = useTranslation();
-  const colWidths = ['260px', 'calc(100% - 240px)'];
   
   return (
     <InspectionInformationWrapper>

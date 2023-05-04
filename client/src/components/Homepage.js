@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoins, faGavel, faChartLine, faChartPie, faBalanceScale, faHandHoldingUsd, faUniversity, faFileInvoiceDollar, faUsers, faSuitcase } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faGavel } from '@fortawesome/free-solid-svg-icons';
 import Card from './ui/Card';
 import PageContainer from './ui/PageContainer';
 
@@ -41,13 +41,7 @@ const InspectionItem = styled.li`
     color: var(--secondary-blue);
   }
 `;
-const Spacer = styled.div`
-  width: 1rem;
-  @media (max-width: 768px) {
-    width: 0;
-    height: 1rem;
-  }
-`;
+
 
 const Homepage = () => {
   const [selectedInspection, setSelectedInspection] = useState(null);
